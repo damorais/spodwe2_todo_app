@@ -23,8 +23,6 @@ const AddTodo = ({ addTodo }) => {
           return response.json();
         });
 
-        console.log(newTodo);
-
         addTodo(newTodo);
         input.value = "";
       }
@@ -98,8 +96,18 @@ const TodoList = () => {
 
   useEffect(() => {
     const fetchTodos = async () => {
+      const session = localStorage.getItem("session");
+      if (!session) {
+        alert("Você não está autenticado");
+        return;
+      }
+
       try {
-        const response = await fetch("http://localhost:3000/todos");
+        const response = await fetch("http://localhost:3000/todos", {
+          headers: {
+            Authorization: `Bearer ${JSON.parse(session).token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error("Erro ao buscar os dados");
         }
@@ -114,7 +122,6 @@ const TodoList = () => {
   }, []);
 
   const addTodo = (newTodo) => {
-    console.log(newTodo);
     setTodos((prevTodos) => [...prevTodos, newTodo]);
     if (filter === "done") applyFilter("all");
   };
